@@ -1,3 +1,10 @@
+# Flex Hold Time Plugin
+
+Flex Insights has a bug that affect hold time calulcation during transfers. It adds the full duration of transfer (before second agent accepts the call) to  the first agent.
+
+This plugin calculates hold time from the start of the call until it's disconnected. There is no additional time during transfer. Additionally it calculates number of hold pressed (conversation_measure_9) and if the call was abandoned while on hold (conversation_attribute_9 - true / false).
+
+---------ORIGINAL README----------
 # Your custom Twilio Flex Plugin
 
 Twilio Flex Plugins allow you to customize the appearance and behavior of [Twilio Flex](https://www.twilio.com/flex). If you want to learn more about the capabilities and how to use the API, check out our [Flex documentation](https://www.twilio.com/docs/flex).
