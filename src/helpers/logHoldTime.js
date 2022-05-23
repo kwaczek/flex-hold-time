@@ -90,7 +90,7 @@ export const updateTask = (reservation, store) => {
       attributes.conversations.conversation_measure_9 = holdCount;
     } else {
       attributes.conversations = {
-        hold_time: handleTime,
+        hold_time: holdTime,
         conversation_attribute_9: onholdHangup,
         conversation_measure_9: holdCount,
       };
