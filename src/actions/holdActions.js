@@ -3,14 +3,9 @@ export const holdPressed = (reservationSid) => ({
   reservationSid,
 });
 
-export const unholdPressed = (reservationSid, holdTime) => ({
+export const unholdPressed = (reservationSid, holdTime, wrapup) => ({
   type: "UNHOLD_PRESSED",
   reservationSid,
   holdTime,
-});
-
-export const taskWrapping = (reservationSid, handleTime) => ({
-  type: "TASK_WRAPPING",
-  reservationSid,
-  handleTime,
+  wrapup,
 });

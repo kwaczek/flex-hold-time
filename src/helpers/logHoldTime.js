@@ -7,7 +7,7 @@ export const logHoldPress = (payload, store) => {
   store.dispatch(holdPressed(reservationSid));
 };
 
-export const logUnholdPress = (payload, store) => {
+export const logUnholdPress = (payload, store, wrapup) => {
   const reservationSid = payload.sid;
   const state = store.getState();
 
@@ -24,12 +24,8 @@ export const logUnholdPress = (payload, store) => {
       : 0;
 
     const holdTime = newHoldDuration + currentHoldTime;
-    console.log("dispaching unhold", holdTime);
-    store.dispatch(unholdPressed(reservationSid, holdTime));
+    store.dispatch(unholdPressed(reservationSid, holdTime, wrapup));
   }
-
-  console.log("state :>> ", state);
-  console.log("reservationSid :>> ", reservationSid);
 };
 
 export const handleOnDisconnectVoiceClient = (payload, store) => {
@@ -47,16 +43,15 @@ export const handleOnDisconnectVoiceClient = (payload, store) => {
         }
       }
       if (flag) {
-        updateTask(reservation, store);
+        wrapupTask(reservation, store);
         break;
       }
     }
   }
 };
 
-export const updateTask = (reservation, store) => {
+export const wrapupTask = (reservation, store) => {
   let state = store.getState();
-  const taskSid = reservation.taskSid;
   const reservationSid = reservation.sid;
   let holdTime = 0;
 
@@ -67,8 +62,7 @@ export const updateTask = (reservation, store) => {
     const payload = { sid: reservationSid };
 
     if (disconnectOnHold) {
-      console.log("running disconnect on hold");
-      logUnholdPress(payload, store);
+      logUnholdPress(payload, store, true);
       state = store.getState();
     }
 
@@ -78,11 +72,35 @@ export const updateTask = (reservation, store) => {
         : state.holdTimeTracker.reservations[reservationSid].holdTime;
 
     console.log("the calculated hold time is ", holdTime);
+  }
+};
 
-    let attributes = reservation.attributes;
-    const onholdHangup = disconnectOnHold ? true : false;
-    const holdCount =
+export const handleOnBeforeCompleteTask = async (payload, store) => {
+  console.log("payload after completed:>> ", payload);
+  const channel = payload.task.channelType;
+  console.log('channel :>> ', channel);
+
+  if (channel === "voice") {
+      console.log("inside if");
+    let state = store.getState();
+
+    const reservationSid = payload.sid;
+    let holdCount = null
+    let onholdHangup = null
+    let holdTime = 0
+
+    if (state.holdTimeTracker.reservations[reservationSid]) {
+    holdCount =
       state.holdTimeTracker.reservations[reservationSid].holdCounter;
+    onholdHangup = state.holdTimeTracker.reservations[reservationSid]
+      .activeHold
+      ? true
+      : false;
+    holdTime =
+      state.holdTimeTracker.reservations[reservationSid].holdTime;
+    } 
+
+    let attributes = payload.task.attributes;
 
     if (typeof attributes.conversations !== "undefined") {
       attributes.conversations.hold_time = holdTime;
@@ -95,6 +113,7 @@ export const updateTask = (reservation, store) => {
         conversation_measure_9: holdCount,
       };
     }
-    reservation.setAttributes(attributes);
+    const taskUpdate = await payload.task.setAttributes(attributes);
+    console.log("Updated task:", taskUpdate);
   }
 };

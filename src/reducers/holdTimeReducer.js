@@ -13,27 +13,18 @@ const holdTimeReducer = (state = { reservations: {} }, action) => {
       });
 
     case "UNHOLD_PRESSED":
-      let holdCounter = state.reservations[action.reservationSid].holdCounter
+      const holdCounter = state.reservations[action.reservationSid].holdCounter
         ? state.reservations[action.reservationSid].holdCounter + 1
         : 1;
+      const activeHold = (action.wrapup) ? true : false
       return Object.assign({}, state, {
         reservations: {
           [action.reservationSid]: {
             ...state.reservations[action.reservationSid],
-            activeHold: false,
+            activeHold: activeHold,
             holdStartTime: null,
             holdTime: action.holdTime,
             holdCounter: holdCounter
-          },
-        },
-      });
-
-    case "TASK_WRAPPING":
-      return Object.assign({}, state, {
-        reservations: {
-          [action.taskSid]: {
-            active: false,
-            handleTime: action.handleTime,
           },
         },
       });

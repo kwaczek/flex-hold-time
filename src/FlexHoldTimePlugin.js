@@ -1,6 +1,11 @@
 import { FlexPlugin } from "@twilio/flex-plugin";
 
-import { logHoldPress, logUnholdPress, handleOnDisconnectVoiceClient } from "./helpers/logHoldTime";
+import {
+  logHoldPress,
+  logUnholdPress,
+  handleOnDisconnectVoiceClient,
+  handleOnBeforeCompleteTask,
+} from "./helpers/logHoldTime";
 
 import holdTimeReducer from "./reducers/holdTimeReducer";
 
@@ -19,16 +24,20 @@ export default class FlexHoldTimePlugin extends FlexPlugin {
    * @param manager { import('@twilio/flex-ui').Manager }
    */
   async init(flex, manager) {
-    flex.Actions.addListener("beforeHoldCall", async (payload) => {
-      await logHoldPress(payload, manager.store);
+    flex.Actions.addListener("beforeHoldCall", (payload) => {
+      logHoldPress(payload, manager.store);
     });
 
-    flex.Actions.addListener("beforeUnholdCall", async (payload) => {
-      await logUnholdPress(payload, manager.store);
+    flex.Actions.addListener("beforeUnholdCall", (payload) => {
+      logUnholdPress(payload, manager.store, false);
     });
 
     flex.Manager.getInstance().voiceClient.on("disconnect", (payload) =>
       handleOnDisconnectVoiceClient(payload, manager.store)
+    );
+
+    flex.Actions.addListener("beforeCompleteTask", async (payload) =>
+      handleOnBeforeCompleteTask(payload, manager.store)
     );
 
     manager.store.addReducer("holdTimeTracker", holdTimeReducer);
