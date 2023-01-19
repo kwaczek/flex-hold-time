@@ -4,6 +4,8 @@ Flex Insights has a bug that affect hold time calulcation during transfers. It a
 
 This plugin calculates hold time from the start of the call until it's disconnected. There is no additional time during transfer. Additionally it calculates number of hold pressed (conversation_measure_9) and if the call was hung up while on hold (conversation_attribute_9 - true / false).
 
+Test before deploying to production!
+
 ---------ORIGINAL README----------
 # Your custom Twilio Flex Plugin
 
